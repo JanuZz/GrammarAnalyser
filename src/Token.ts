@@ -4,38 +4,52 @@ export class Token {
 }
 
 export class WordToken extends Token {
-  // Alle bogstaver, store og små, samt mellemrum og accenter
-  static regex = /[A-zÀ-ú]+/;
+  // Kun hele ord som ikke indeholder mellemrum eller tal
+  static regex = /^[^0-9\s]+$/;
 
   constructor(public value: string, public start: number, public end: number) {
     if (!value.match(WordToken.regex)) {
       throw new Error(
-        `WordToken value must only contain word characters. Got: ${value}`
+        `Words must only contain letters. Got: ${value}`
       );
     }
 
     if (value.trim() !== value) {
       throw new Error(
-        `WordToken value must not contain leading or trailing whitespace. Got: ${value}`
+        `Words must not contain leading or trailing whitespace. Got: ${value}`
       );
     }
 
     if (value.length === 0) {
-      throw new Error(`WordToken value must not be empty. Got: ${value}`);
+      throw new Error(`Words must not be empty. Got: ${value}`);
     }
 
     super(value, start, end);
   }
 }
 
+export class NumberToken extends Token {
+  // Alle tal
+  static regex = /[0-9]+/g;
+
+  constructor(public value: string, public start: number, public end: number) {
+    if (value.match(/[^0-9]/)) {
+      throw new Error(
+        `Numbers cannot contain letters. Got: ${value}`
+      );
+    }
+    super(value, start, end);
+  }
+}
+
 export class SymbolToken extends Token {
   // Alle tegn som ikke er bogstaver, mellemrum eller accenter
-  static regex = /[^A-zÀ-ú]+/;
+  static regex = /[^A-zÀ-ú0-9\s]+/;
 
   constructor(public value: string, public start: number, public end: number) {
     if (!value.match(SymbolToken.regex)) {
       throw new Error(
-        `SymbolToken value must only contain non-word characters. Got: ${value}`
+        `Symbols must only contain non word or number characters. Got: ${value}`
       );
     }
     super(value, start, end);

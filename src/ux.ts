@@ -1,5 +1,5 @@
 import readline from "readline";
-import { SyntaxError } from "./SyntaxError";
+import { SemanticError } from "./SyntaxError";
 import "colors";
 
 function prompt(message: string): Promise<string> {
@@ -27,7 +27,7 @@ export function withColor(message: string, color: string): string {
   return message[color as any];
 }
 
-export function displayError(input: string, error: SyntaxError): void {
+export function displayError(input: string, error: SemanticError): void {
   const error_message = (": " + error.message).red;
   console.log(input, error_message);
 
