@@ -1,4 +1,3 @@
-let running = true;
 import {
   Token,
   SymbolToken,
@@ -6,7 +5,7 @@ import {
   SentenceStartToken,
   NumberToken,
 } from "./Token";
-import { SemanticError, SemanticErrorType } from "./SyntaxError";
+import { SyntaxError, SyntaxErrorType } from "./SyntaxError";
 import { ask, displayError, say } from "./ux";
 
 /**
@@ -69,7 +68,19 @@ function tokenizer(input: string): Token[] {
 
         // Hvis det er et tegn som definere slutningen på en sætning, så tilføj et sætningsstart tegn til tokens for at vise at det er en ny sætning
         if ([".", "?", "!"].includes(current_char)) {
-          tokens.push(new SentenceStartToken(current_index));
+          // Tjek om der er et mellemrum efter symbolet, og hvis der er så tilføj et sætningsstart tegn ellers er der en syntax fejl
+          if (input[current_index + 1]?.match(/\s/)) {
+            tokens.push(new SentenceStartToken(current_index + 1));
+          } else {
+            // Det er slutningen på input strengen, så der er ikke noget mellemrum efter symbolet
+            if (input[current_index + 1] === undefined) break;
+
+            // Tag en del af input strengen som viser hvor fejlen er
+            const slice = input.slice(current_index - 8, current_index + 10);
+            throw new Error(
+              `Expected a space after the symbol '${current_char}'. Got: '${slice}'`
+            )
+          }
         }
       } else {
         // Hvis tegnet er et bogstav, så tilføj det til current_value
@@ -99,8 +110,8 @@ function tokenizer(input: string): Token[] {
  * @param tokens Token listen som kommer fra tokenizer funktionen
  * @returns
  */
-function semantic_checker(tokens: Token[]): SemanticError[] {
-  const errors: SemanticError[] = [];
+function syntax_checker(tokens: Token[]): SyntaxError[] {
+  const errors: SyntaxError[] = [];
 
   // Loop igennem alle tokens
   for (let index = 0; index < tokens.length; index++) {
@@ -111,9 +122,9 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
     if (token instanceof WordToken) {
       if (next_token instanceof WordToken) {
         // Tjek om ord i midten af en sætning har store bogstaver
-        if (next_token.value.match(/[A-ZÀ-ú]/)) {
+        if (next_token.value.toLowerCase() !== next_token.value) {
           errors.push({
-            type: SemanticErrorType.InvalidCapitalLetter,
+            type: SyntaxErrorType.InvalidCapitalLetter,
             message:
               "A word in the middle of a sentence cannot contain with a capital letter.",
             start: next_token.start,
@@ -128,7 +139,7 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
       if (next_token instanceof WordToken) {
         if (!next_token.value[0].match(/[A-ZÀ-ú]/)) {
           errors.push({
-            type: SemanticErrorType.MissingCapitalLetter,
+            type: SyntaxErrorType.MissingCapitalLetter,
             message: "The first letter of a sentence must be capital.",
             start: next_token.start,
             end: next_token.end,
@@ -141,8 +152,10 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
         next_token instanceof SymbolToken ||
         next_token instanceof SentenceStartToken
       ) {
+        console.log(token);
+        console.log(next_token);
         errors.push({
-          type: SemanticErrorType.InvalidSentenceStart,
+          type: SyntaxErrorType.InvalidSentenceStart,
           message: "A sentence cannot start on a symbol.",
           start: next_token.start,
           end: next_token.end,
@@ -153,9 +166,9 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
 
   // Find den sidste token i inputtet, og tjek om det er en SentenceStartToken for at se om sætningen er slut
   const last_token = tokens[tokens.length - 1];
-  if (!(last_token instanceof SentenceStartToken)) {
+  if (!(last_token instanceof SymbolToken)) {
     errors.push({
-      type: SemanticErrorType.InvalidSentenceEnd,
+      type: SyntaxErrorType.InvalidSentenceEnd,
       message: "A sentence cannot end on a non-symbol. (Missing ., ! or ?)",
       start: last_token.end,
       end: last_token.end + 1,
@@ -165,7 +178,10 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
   return errors;
 }
 
+// Start en async blok for at man kan bruge 'await' til at afvænte svar på et Promise
 (async () => {
+  // Hold styr på hvorår programmet skal afslutte
+  let running = true;
   // Bliv ved med at tjekke sætninger indtil brugeren skriver "exit"
   while (running) {
     // Få input fra brugeren
@@ -184,7 +200,7 @@ function semantic_checker(tokens: Token[]): SemanticError[] {
     if (tokens.length <= 0) continue;
 
     // Find grammatik fejl
-    const errors = semantic_checker(tokens);
+    const errors = syntax_checker(tokens);
 
     // Hvis der ikke er nogen fejl, så skriv det til brugeren, ellers vis fejlene
     if (!errors.length) {

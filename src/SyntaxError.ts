@@ -1,12 +1,12 @@
-export enum SemanticErrorType {
+export enum SyntaxErrorType {
     MissingCapitalLetter,
     InvalidCapitalLetter,
     InvalidSentenceStart,
     InvalidSentenceEnd,
 }
 
-export type SemanticError = {
-    type: SemanticErrorType;
+export type SyntaxError = {
+    type: SyntaxErrorType;
     message: string;
     start: number;
     end: number;

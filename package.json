@@ -11,5 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "colors": "^1.4.0"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0"
   }
 }
