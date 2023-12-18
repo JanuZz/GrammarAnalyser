@@ -1,6 +1,6 @@
 # Grammar Analyser
-- [DK](##DK)
-- [EN](##EN)
+- [DK](#DK)
+- [EN](#EN)
 
 ## DK
 Dette projekt er lavet i sammenhæng med et studie orienteret projekt i fagene Dansk A, og Programmering B. Ideen er at programmet kan tage noget tekst fra brugeren og splitte det op i tokens, ligesom en compiler ville gøre det. Så tage de tokens og lave syntax analyse og tjekke at de overholder de opsatte regler.
