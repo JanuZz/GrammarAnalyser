@@ -11,7 +11,7 @@ De tokens der findes i programmer er som følgene:
 - SymbolToken, et enkelt symbol (,.?! osv.)
 - SentenceStartToken, bestemmer hvornår en ny sætning starter.
 
-Tokense kan findes [her](./src/Tokens.ts).
+Tokense kan findes [her](./src/Token.ts).
 De tokens bliver så brugt til at tjekke syntax som nævnt tidligere. Til sidst printer den så alle de syntax fejl der er fundet
 
 ## EN
@@ -23,5 +23,5 @@ The tokens found in programs are as follows:
 - SymbolToken, a single symbol (,.?! etc.)
 - SentenceStartToken, determines when a new sentence starts.
 
-Tokens can be found [here](./src/Tokens.ts).
+Tokens can be found [here](./src/Token.ts).
 The tokens are then used to check syntax as mentioned earlier. Finally, it prints all the syntax errors found
