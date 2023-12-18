@@ -150,13 +150,14 @@ function syntax_checker(tokens: Token[]): SyntaxError[] {
       // Sætningen må ikke starte med et symbol, eller et andet sætningsstart tegn. Det er kun tilladt at starte med et ord
       if (
         next_token instanceof SymbolToken ||
-        next_token instanceof SentenceStartToken
+        next_token instanceof SentenceStartToken ||
+        next_token instanceof NumberToken
       ) {
         console.log(token);
         console.log(next_token);
         errors.push({
           type: SyntaxErrorType.InvalidSentenceStart,
-          message: "A sentence cannot start on a symbol.",
+          message: "A sentence cannot start on a symbol or number.",
           start: next_token.start,
           end: next_token.end,
         });
